@@ -93,7 +93,7 @@ log,68.32,92.14,5.89,23.55,35.7
 
 ![Screenshot_2](https://github.com/user-attachments/assets/c44f34e9-e222-4df8-bea1-1b8ee6678ad9)
 
-Ph: 0.22
+Ph: 0.24
 Temp (°C): 12.7
 Humidity (%): 17
 
