@@ -21,12 +21,13 @@
 ### Coordenador(a)
 - <a href="https://www.linkedin.com/company/inova-fusca">ANDRÉ GODOI CHIOVATO</a>
 
+Projeto no wokwi -> https://wokwi.com/projects/434097756783603713
 
 # Projeto de Monitoramento de Solo com ESP32
 
 Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH**, **fósforo** e **potássio** em um ambiente de cultivo, utilizando um ESP32. A lógica de controle foi desenvolvida em C++ e pode ser simulada no ambiente Wokwi. Com a adição do LCD podemos observar as atualizações de temperatura, umidade, ph e fosforo.
 ---
-
+c
 ## ⚙️ Componentes e Conexões
 
 - **Sensor Fosforo - Botão Vermelho**:
