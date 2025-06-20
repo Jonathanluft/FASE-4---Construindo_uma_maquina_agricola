@@ -78,9 +78,9 @@ Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH*
 ```
 Presença Fosforo: 68.32
 Presença Potassio: 92.14
-Ph: 5.89
-Temp (°C): 23.55
-Humidity (%): 35.7
+Ph: 0.22
+Temp (°C): 12.7
+Humidity (%): 17
 
 ============================================ COPIAVEL PARA SCRIPT PYTHON ============================================
 
@@ -90,6 +90,12 @@ log,68.32,92.14,5.89,23.55,35.7
 
 =====================================================================================================================
 ```
+
+![Screenshot_2](https://github.com/user-attachments/assets/c44f34e9-e222-4df8-bea1-1b8ee6678ad9)
+Ph: 0.22
+Temp (°C): 12.7
+Humidity (%): 17
+
 **========================== DATA BASE ===================================**
 Nosso data base foi inteiramente simulado, porém desta vez foram feitas relações com os sensores.
 
