@@ -1,24 +1,29 @@
-
-//define algumas conexões de pinos, como ambos botões e também o Led do rele.
+// Define pinos dos botões e LED do relé
 #define BUTTON_FOSFORO 23
 #define BUTTON_POTASSIO 22
 #define LED_RELE 2
 
-//Bibliotecas para utilização de funções e também a biblioteca do Sensor DTH22 para ESP
+// Bibliotecas utilizadas
 #include "DHTesp.h"
 #include <math.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
-//Declarando alguns valores e definindo o pin de conexão do sensor DTH22
-const int DHT_PIN = 15;
-const float GAMMA = 0.7;
-const float RL10 = 100;
-float LastValue_PH = 1.22;
+// Objeto do LCD I2C no endereço 0x27, com 16 colunas e 2 linhas
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-// Criando o objeto da classe DHTesp e chamar o sensor.
+// Configuração do sensor DHT
+const uint8_t DHT_PIN = 15;
+const float GAMMA = 0.7f;
+const float RL10 = 100.0f;
+float LastValue_PH = 1.22f;
 DHTesp dhtSensor;
 
+// Últimos estados dos sensores/botões
+uint8_t lastState_FOSFORO = HIGH;
+uint8_t lastState_POTASSIO = HIGH;
+const float desvio = 0.01f;
 
-// Função para quando é inicializado o código, passando os estados dos botoes, inicialização dos sensores
 void setup() {
   Serial.begin(115200);
   dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
@@ -26,118 +31,123 @@ void setup() {
   pinMode(BUTTON_POTASSIO, INPUT_PULLUP);
   pinMode(LED_RELE, OUTPUT);
 
+  lcd.init();            
+  lcd.backlight();       
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Sistema iniciado");
+  delay(1500);
+  lcd.clear();
 }
 
-//Declaração de último estado para as variaveis, intuito de utilizar em condição para disparo do Log do sensor
-int lastState_FOSFORO = HIGH;
-int lastState_POTASSIO = HIGH;
-float desvio = 0.01;
-
-//Loop, toda lógica, estrutura e ações de interação com o diagrama e simulador do sensor atende a
-//Lógica gerada dentro dessa função de Loop
 void loop() {
+  uint8_t value_FOSFORO = digitalRead(BUTTON_FOSFORO);
+  uint8_t value_POTASSIO = digitalRead(BUTTON_POTASSIO);
 
-  //Declaração e recebimento dos dados do sensor nessa nova volta
-    //Intuito disso é para não gerar log a esmo, e sim ao alterar algum valor disparar o registro em tela
-    // Somente para facilitar a avaliação do funcionamento do código
+  float fosforo_mol_random = 0.0f;
+  float potassio_mol_random = 0.0f;
 
-  //Botoes (Fosforo e potassio)  
-  int value_FOSFORO = digitalRead((BUTTON_FOSFORO));
-  int value_POTASSIO = digitalRead((BUTTON_POTASSIO));
+  uint16_t analogValue = analogRead(35);  // 0–4095
+  float voltage = analogValue / 1024.0f * 5.0f;
+  float resistance = 2000.0f * voltage / fmax(1.0f - voltage / 5.0f, 0.01f);
+  float value_PH = pow(RL10 * 1000.0f * pow(10.0f, GAMMA) / resistance, (1.0f / GAMMA));
 
-  //Calculo do valor "Lux", alterado para ser o Ph conforme instrução da atividade
-  //Código foi copiado de modelos base do wokwi e adaptado, para uso e condições da lógica nossa.
-  float fosforo_mol_random = 0;
-  float potassio_mol_random = 0;
-  int analogValue = analogRead(35);
-  float voltage = analogValue / 1024. * 5;
-  float  resistance = 2000 * voltage / fmax(1 - voltage / 5, 0.01);
-  float  value_PH = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
-
-  //Leitura do sensor DTH22 - temperatura e Umidade
-  TempAndHumidity  data = dhtSensor.getTempAndHumidity();
+  TempAndHumidity data = dhtSensor.getTempAndHumidity();
   float temperatura = data.temperature;
   float umidade = data.humidity;
 
-  //A partir deste trecho, a lógica utiliza foi pensando em não gerar log automático 
-  //1: Se o valor das variáveis forem iguais ao último Loop, não gera alerta/log (Serial.print)
-  //2: Botões - fosforo e potassio - e Ph (lux) são analisados individualmente
-  //3: Para não ficar vazio os teste, implementamos o DTH22 para ser disparado em qualquer diferença dos outros sensores.
-
-  //Fosforo
-  if (lastState_FOSFORO != value_FOSFORO){ 
-    if (value_FOSFORO == LOW){
-      Serial.println("");
-      fosforo_mol_random = random(1, 10000 + 1) / 100.0;
+  if (lastState_FOSFORO != value_FOSFORO) { 
+    if (value_FOSFORO == LOW) {
+      Serial.println();
+      fosforo_mol_random = random(1, 10000 + 1) / 100.0f;
       Serial.print("Presença Fosforo: ");
       Serial.println(fosforo_mol_random);
-    // Serial.println(value_FOSFORO);
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Fosforo:");
+      lcd.setCursor(0, 1);
+      lcd.print(fosforo_mol_random);
+      delay(2000);
     }
   }
-    
-  //Potassio
+
   if (lastState_POTASSIO != value_POTASSIO) {
-    if (value_POTASSIO == LOW){
-      Serial.println("");
-      potassio_mol_random = random(1, 10000 + 1) / 100.0;
+    if (value_POTASSIO == LOW) {
+      Serial.println();
+      potassio_mol_random = random(1, 10000 + 1) / 100.0f;
       Serial.print("Presença Potassio: ");
       Serial.println(potassio_mol_random);
-     // Serial.println(value_POTASSIO);
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Potassio:");
+      lcd.setCursor(0, 1);
+      lcd.print(potassio_mol_random);
+      delay(2000);
     }
   }
 
-  //Ph - necessário a utilização de tratamento com a função FABS da biblioteca <math.h>, pois nessa linguagem o valor de mesmos floats em até 2 casas depois da virgula seria reconhecido diferente
-  //Exemplo: 1.22 <> 1.22
-  if (fabs(LastValue_PH - value_PH) >= desvio) {
-    Serial.println("");
+  if (fabsf(LastValue_PH - value_PH) >= desvio) {
+    Serial.println();
     Serial.print("Ph: ");
     Serial.println(value_PH);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("pH:");
+    lcd.setCursor(0, 1);
+    lcd.print(value_PH, 2);
+    delay(2000);
   }
 
-  //Umidade e temperatura: Condições dos outros valores serem modificados para também ser disparado Umidade e Temperatura.
-  if ((lastState_FOSFORO != value_FOSFORO and value_FOSFORO == LOW) || (lastState_POTASSIO != value_POTASSIO and value_POTASSIO == LOW )|| (fabs(LastValue_PH - value_PH) >= desvio)){
+  if ((lastState_FOSFORO != value_FOSFORO && value_FOSFORO == LOW) || 
+      (lastState_POTASSIO != value_POTASSIO && value_POTASSIO == LOW) || 
+      fabsf(LastValue_PH - value_PH) >= desvio) {
+    
     if (!isnan(temperatura) && !isnan(umidade)) {
-        delay(500); // Wait for a new reading from the sensor (DHT22 has ~0.5Hz sample rate)
-        Serial.println("Temp (°C): " + String(temperatura, 2));
-        Serial.println("Humidity (%): " + String(umidade, 1));
-        Serial.println("");
-      }
+      delay(500);
+      Serial.println("Temp (°C): " + String(temperatura, 2));
+      Serial.println("Humidity (%): " + String(umidade, 1));
+      Serial.println();
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Temp:");
+      lcd.print(temperatura, 1);
+      lcd.setCursor(0, 1);
+      lcd.print("Umid:");
+      lcd.print(umidade, 1);
+      delay(2000);
+    }
   }
 
-  //Condição para desligar o relé, representado por LED Vermelho.
-  //Simula o desligamento da bomba caso a umidade for maior ou igual a 30%
-  //Obs: essa validação não depende de recebimento de logs em tela, se alterar no terminal do sensor a umidade, automaticamente irá desligar, simulando um cenário real.
-  if(umidade >= 40){
-    digitalWrite(LED_RELE, LOW);
-    // DESLIGA O RELÉ (VERMELHO)
+  if (umidade >= 40.0f) {
+    digitalWrite(LED_RELE, LOW);  // Bomba desligada
+  } else {
+    digitalWrite(LED_RELE, HIGH); // Bomba ligada
   }
-  // Se for menor que 40% de umidade, irá ligar a bomba, representado pelo LED verde.
-  else{
-    digitalWrite(LED_RELE, HIGH);
-    // LIGA O RELÉ (VERDE)
-  }
-  
-  // Modelo de saída para copiar os dados 
-  if ((lastState_FOSFORO != value_FOSFORO && value_FOSFORO == LOW) || (lastState_POTASSIO != value_POTASSIO && value_POTASSIO == LOW) || fabs(LastValue_PH - value_PH) >= desvio) {
+
+  if ((lastState_FOSFORO != value_FOSFORO && value_FOSFORO == LOW) || 
+      (lastState_POTASSIO != value_POTASSIO && value_POTASSIO == LOW) || 
+      fabsf(LastValue_PH - value_PH) >= desvio) {
+
     if (!isnan(temperatura) && !isnan(umidade)) {
       Serial.println("============================================ COPIAVEL PARA SCRIPT PYTHON ============================================");
-      Serial.println("");
+      Serial.println();
       Serial.print("log,");
       Serial.print(fosforo_mol_random); Serial.print(",");
       Serial.print(potassio_mol_random); Serial.print(",");
       Serial.print(value_PH, 2); Serial.print(",");
       Serial.print(temperatura, 2); Serial.print(",");
       Serial.println(umidade, 1);
-      Serial.println("");
+      Serial.println();
       Serial.print("=====================================================================================================================");
       Serial.println();
-      } 
-  }  
-  
+    } 
+  }
 
-    //Define os novos valores para "Ultimo Valor do proximo loop".
-    lastState_FOSFORO = value_FOSFORO;
-    lastState_POTASSIO = value_POTASSIO;
-    LastValue_PH = value_PH;
-
+  lastState_FOSFORO = value_FOSFORO;
+  lastState_POTASSIO = value_POTASSIO;
+  LastValue_PH = value_PH;
 }
