@@ -24,8 +24,7 @@
 
 # Projeto de Monitoramento de Solo com ESP32
 
-Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH**, **fósforo** e **potássio** em um ambiente de cultivo, utilizando um ESP32. A lógica de controle foi desenvolvida em C++ e pode ser simulada no ambiente Wokwi.
-
+Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH**, **fósforo** e **potássio** em um ambiente de cultivo, utilizando um ESP32. A lógica de controle foi desenvolvida em C++ e pode ser simulada no ambiente Wokwi. Com a adição do LCD podemos observar as atualizações de temperatura, umidade, ph e fosforo, sempre que um valor for atualizado o valor sera exibido.
 ---
 
 ## ⚙️ Componentes e Conexões
@@ -43,6 +42,11 @@ Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH*
 - **Sensor Bomba Irrigação - LED (Vermelho e Verde) (Relé simulado)**: 
   - Conexão: pino 2
   - Utilizado como atuador da bomba de irrigação.
+- **Display lcd1602**
+  - LCD SDA -> PIN 21
+  - LCD SCL -> PIN 22
+  - LCD VCC -> 5V 
+
   
 
 ---
@@ -64,7 +68,7 @@ Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH*
   - **≥ 40%**: bomba desligada (LED Vermelho Ligado)
   - **< 40%**: bomba ligada (LED Verde Ligado)
 - Todos os dados são exibidos no monitor serial, com um bloco especialmente formatado para facilitar a cópia e posterior uso em scripts Python.
-
+- Além de serem exibidos no monitor serial, temos o uso do LCD, que também exibe as atualizações dos dados.
 ---
 
 ## 📤 Exemplo de Saída no Serial
@@ -84,6 +88,51 @@ log,68.32,92.14,5.89,23.55,35.7
 
 =====================================================================================================================
 ```
+**========================== DATA BASE ===================================**
+Nosso data base foi inteiramente simulado, porém desta vez foram feitas relações com os sensores.
+
+**======================== 1. pH do Solo =================================**
+Efeito no Fósforo (P):
+Em solos com pH alto (alcalinos, >7), o fósforo tende a se precipitar com cálcio (Ca), reduzindo sua disponibilidade para as plantas.
+Em solos com pH baixo (ácidos, <6), o fósforo torna-se mais solúvel, porém pode ser fixado por alumínio (Al) ou ferro (Fe).
+
+Equação:
+Fósforo (mg/kg) = 50.0 - (pH - 5.5) * 5 + ruído 
+
+Efeito no Potássio (K):
+Solos ácidos (pH baixo) aumentam a solubilidade do potássio, mas também elevam o risco de lixiviação (perda por água).
+Solos alcalinos (pH alto) reduzem a disponibilidade de K devido à competição com íons como Ca²⁺ e Mg²⁺.
+
+Equação:
+Potássio (mg/kg) = 300.0 - (pH - 5.5) * 15 - (Umidade - 50) * 0.2 + ruído  
+
+**======================== 2. Temperatura (°C) ==============================**
+Relação com a Umidade:
+Temperaturas mais altas aceleram a evaporação, reduzindo a umidade do solo.
+
+Equação:
+Umidade (%) ≈ 70.0 → 50.0 (quando Temperatura aumenta de 22°C → 28°C)  
+
+**======================== 3. Umidade do Solo (%) ============================**
+Impacto no Potássio (K):
+Solos com umidade elevada facilitam a lixiviação do potássio (arraste pela água), reduzindo sua concentração.
+
+Termo na equação do Potássio:
+- (Umidade - 50) * 0.2
+
+**======================= 4. Nutrientes: Fósforo (P) vs. Potássio (K) =========**
+Solos com alto teor de P podem inibir a absorção de K (e vice-versa), especialmente em pH extremos.
+Quando P > 45 mg/kg, o K geralmente fica abaixo de 270 mg/kg (para pH ~6.0).
+
+**======================= Como as Relações Foram Implementadas ================**
+As equações usadas para gerar os dados incorporam:
+
+Variações naturais: Adição de ruído (np.random.normal) para simular flutuações reais.
+Tendências lineares: Relações diretas/inversas entre pH, umidade e nutrientes.
+
+**======================= Limites realistas: ===================================**
+pH entre 5.5 e 7.5 (solos agrícolas típicos).
+Potássio entre 200–350 mg/kg (solos férteis).
 
 ## 📋 Licença
 
