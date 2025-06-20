@@ -24,7 +24,7 @@
 
 # Projeto de Monitoramento de Solo com ESP32
 
-Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH**, **fósforo** e **potássio** em um ambiente de cultivo, utilizando um ESP32. A lógica de controle foi desenvolvida em C++ e pode ser simulada no ambiente Wokwi. Com a adição do LCD podemos observar as atualizações de temperatura, umidade, ph e fosforo, sempre que um valor for atualizado o valor sera exibido.
+Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH**, **fósforo** e **potássio** em um ambiente de cultivo, utilizando um ESP32. A lógica de controle foi desenvolvida em C++ e pode ser simulada no ambiente Wokwi. Com a adição do LCD podemos observar as atualizações de temperatura, umidade, ph e fosforo.
 ---
 
 ## ⚙️ Componentes e Conexões
@@ -47,7 +47,9 @@ Este projeto simula a leitura de sensores de **umidade**, **temperatura**, **pH*
   - LCD SCL -> PIN 22
   - LCD VCC -> 5V 
 
-  
+
+  ![Screenshot_1](https://github.com/user-attachments/assets/d6f58ae6-32e6-4e19-b348-29ee8e9a5210)
+
 
 ---
 
