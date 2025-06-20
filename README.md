@@ -97,10 +97,10 @@ Ph: 0.24
 Temp (°C): 12.7
 Humidity (%): 17
 
-**========================== DATA BASE ===================================**
+**====================== DATA BASE ===============================**
 Nosso data base foi inteiramente simulado, porém desta vez foram feitas relações com os sensores.
 
-**======================== 1. pH do Solo =================================**
+**==================== 1. pH do Solo =============================**
 Efeito no Fósforo (P):
 Em solos com pH alto (alcalinos, >7), o fósforo tende a se precipitar com cálcio (Ca), reduzindo sua disponibilidade para as plantas.
 Em solos com pH baixo (ácidos, <6), o fósforo torna-se mais solúvel, porém pode ser fixado por alumínio (Al) ou ferro (Fe).
@@ -115,35 +115,35 @@ Solos alcalinos (pH alto) reduzem a disponibilidade de K devido à competição 
 Equação:
 Potássio (mg/kg) = 300.0 - (pH - 5.5) * 15 - (Umidade - 50) * 0.2 + ruído  
 
-**======================== 2. Temperatura (°C) ==============================**
+**==================== 2. Temperatura (°C) ==========================**
 Relação com a Umidade:
 Temperaturas mais altas aceleram a evaporação, reduzindo a umidade do solo.
 
 Equação:
 Umidade (%) ≈ 70.0 → 50.0 (quando Temperatura aumenta de 22°C → 28°C)  
 
-**======================== 3. Umidade do Solo (%) ============================**
+**==================== 3. Umidade do Solo (%) ========================**
 Impacto no Potássio (K):
 Solos com umidade elevada facilitam a lixiviação do potássio (arraste pela água), reduzindo sua concentração.
 
 Termo na equação do Potássio:
 - (Umidade - 50) * 0.2
 
-**======================= 4. Nutrientes: Fósforo (P) vs. Potássio (K) =========**
+**================== 4. Nutrientes: Fósforo (P) vs. Potássio (K) =====**
 Solos com alto teor de P podem inibir a absorção de K (e vice-versa), especialmente em pH extremos.
 Quando P > 45 mg/kg, o K geralmente fica abaixo de 270 mg/kg (para pH ~6.0).
 
-**======================= Como as Relações Foram Implementadas ================**
+**=================== Como as Relações Foram Implementadas ============**
 As equações usadas para gerar os dados incorporam:
 
 Variações naturais: Adição de ruído (np.random.normal) para simular flutuações reais.
 Tendências lineares: Relações diretas/inversas entre pH, umidade e nutrientes.
 
-**======================= Limites realistas: ===================================**
+**================== Limites realistas: ===============================**
 pH entre 5.5 e 7.5 (solos agrícolas típicos).
 Potássio entre 200–350 mg/kg (solos férteis).
 
-**======================= BANCO DE DADOS: ======================================**
+**=================== BANCO DE DADOS: ==================================**
 
 
 ## 📋 Licença
